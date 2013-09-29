@@ -37,6 +37,7 @@ class Level {
   // coordinates 
   void draw(float xo, float yo) {
     float scale = 20.0;
+    //float x_ext = width/scale * 0.5;
     draw(xo, yo, 
         int(xo) - 10, int(yo) - 10, 
         int(xo) + 10, int(yo) + 10, scale);
@@ -50,6 +51,12 @@ class Level {
       return;
     }
     map_im.loadPixels();
+    
+    float x_off = width/2  - (sc * (xmax - xmin))/2;
+    float y_off = height/2 - (sc * (ymax - ymin))/2;
+    //println(x_off + " " + y_off);
+
+
     for (int y = ymin; y < ymax; y++) {
       for (int x = xmin; x < xmax; x++) {
 
@@ -58,8 +65,8 @@ class Level {
 
           final int ind = y * map_im.width + x;
 
-          final float x_scr = ( (x - xmin) * sc);
-          final float y_scr = ( (y - ymin) * sc);
+          final float x_scr = x_off + ( (x - xmin) * sc);
+          final float y_scr = y_off + ( (y - ymin) * sc);
 
           //println(str(x) + " " + str(x_scr) + " " + str(y_scr));
 
@@ -104,7 +111,7 @@ void keyPressed() {
 }
 
 void draw() {
-  background(0);
+  background(10,30,0);
 
   level.draw(xo, yo);
 }
