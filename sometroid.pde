@@ -16,11 +16,12 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 import java.util.Date;
 
 import java.util.Iterator;
 import java.util.Map;
+
+float scale = 32.0;
 
 class Level {
 
@@ -32,15 +33,15 @@ class Level {
     println("level: " + filename + " " + map_im.width + " " + map_im.height);
   }
 
-
   // xo and yo are the centers of the view in map_im
   // coordinates 
   void draw(float xo, float yo) {
-    float scale = 20.0;
-    //float x_ext = width/scale * 0.5;
+    int x_ext = int(width/scale * 0.5);
+    int y_ext = int(height/scale * 0.5);
     draw(xo, yo, 
-        int(xo) - 10, int(yo) - 10, 
-        int(xo) + 10, int(yo) + 10, scale);
+        int(xo) - x_ext, int(yo) - y_ext, 
+        int(xo) + x_ext, int(yo) + y_ext, 
+        scale);
   }
 
   void draw(float xo, float yo,
@@ -84,34 +85,59 @@ class Level {
 
 }
 
+class Player {
+  
+  float xo;
+  float yo;
+
+  float x_scr;
+  float y_scr;
+
+  Player() {
+    xo = 10;
+    yo = 10;
+    x_scr = width/2;
+    y_scr = height/2;
+  }
+
+  void move (float dx, float dy) {
+    xo += dx;
+    yo += dy;
+  }
+
+  void draw() {
+    fill(255, 100, 100);
+    rect(x_scr, y_scr, scale, scale );
+  }
+}
+
 Level level;
-float xo;
-float yo;
+Player player;
 
 void setup() {
   size(800, 600);
   level = new Level(); 
-  xo = 10;
-  yo = 10;
+  player = new Player();
 }
 
 void keyPressed() {
   if (key == 'a') {
-    xo -= 1;
+    player.move(-1,0);
   }
   if (key == 'd') {
-    xo += 1;
+    player.move(1,0);
   }
   if (key == 'w') {
-    yo -= 1;
+    player.move(0,-1);
   }
   if (key == 's') {
-    yo += 1;
+    player.move(0, 1);
   }
 }
 
 void draw() {
   background(10,30,0);
 
-  level.draw(xo, yo);
+  level.draw(player.xo, player.yo);
+  player.draw();
 }
