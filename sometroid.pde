@@ -76,8 +76,10 @@ class Level {
     float x_off = width/2  - (sc * (xmax - xmin))/2;
     float y_off = height/2 - (sc * (ymax - ymin))/2;
     
-    x_off += xo - int(xo);
-    y_off += yo - int(yo);
+    x_off -= sc * (xo - int(xo));
+    y_off -= sc * (yo - int(yo));
+    fill(255,0,255);
+
     //println(x_off + " " + y_off);
 
     for (int y = ymin; y < ymax; y++) {
@@ -102,6 +104,7 @@ class Level {
       } // x
     } // y
 
+    rect(50 * (xo - int(xo)), 50* (yo - int(yo)), 3, 3);
   } // draw
 
 }
@@ -147,6 +150,17 @@ class Player {
   }
 
   void update() {
+    
+    if (controls.left && !controls.right_not_left_most_recent) 
+      walk(-0.1);
+    if (controls.right && controls.right_not_left_most_recent) 
+      walk(0.1);
+  
+    if (controls.just_jumped) {
+      controls.just_jumped = false;
+      jump();
+    }
+
     // gravity 
     y_vel += 0.01;
     if (y_vel > 0.1) y_vel = 0.1;
@@ -187,34 +201,99 @@ class Player {
   }
 }
 
+class Controls {
+  
+  boolean right;
+  boolean left;
+  boolean right_not_left_most_recent;
+  boolean up;
+  boolean down;
+  boolean up_not_down_most_recent;
+  boolean jump;
+  boolean just_jumped; 
+
+  Controls() {
+
+  }
+
+  void keyPressed(char key) {
+    if (key == 'd') {
+      right = true;
+      right_not_left_most_recent = true;
+      //player.walk(-0.1);
+      //player.move(-1,0);
+    }
+    if (key == 'a') {
+      left = true;
+      right_not_left_most_recent = false;
+      //player.walk(0.1);
+      //player.move(1,0);
+    }
+    if (key == 'w') {
+      up = true;
+      //player.jump();
+      //player.move(0,-1);
+    }
+    if (key == 's') {
+      down = true;
+      //player.move(0, 1);
+    }
+    if (key == 'k') {
+      jump = true;
+      if (just_jumped == false)
+        just_jumped = true;
+      else just_jumped = false;
+      //player.jump();
+    }
+  }
+
+  void keyReleased(char key) {
+    if (key == 'a') {
+      right = false;
+      //right_not_left_most_recent = true;
+      //player.walk(-0.1);
+      //player.move(-1,0);
+    }
+    if (key == 'd') {
+      left = false;
+      //right_not_left_most_recent = false;
+      //player.walk(0.1);
+      //player.move(1,0);
+    }
+    if (key == 'w') {
+      up = false;
+      //player.jump();
+      //player.move(0,-1);
+    }
+    if (key == 's') {
+      down = false;
+      //player.move(0, 1);
+    }
+    if (key == 'k') {
+      jump = false;
+      just_jumped = false;
+      //player.jump();
+    }
+  } // keyReleased
+} // Controls
+
 Level level;
 Player player;
+Controls controls;
 
 void setup() {
   size(800, 600);
   level = new Level(); 
   player = new Player();
+  controls = new Controls();
 }
 
 void keyPressed() {
-  if (key == 'a') {
-    player.walk(-0.1);
-    //player.move(-1,0);
-  }
-  if (key == 'd') {
-    player.walk(0.1);
-    //player.move(1,0);
-  }
-  if (key == 'w') {
-    //player.jump();
-    //player.move(0,-1);
-  }
-  if (key == 's') {
-    //player.move(0, 1);
-  }
-  if (key == 'k') {
-    player.jump();
-  }
+  controls.keyPressed(key); 
+}
+
+void keyReleased() {
+  controls.keyReleased(key);
 }
 
 void draw() {
@@ -226,5 +305,5 @@ void draw() {
   player.draw();
 
   fill(255);
-  rect(player.xo*10, player.yo*10, 2, 2);
+  //rect(player.xo*10, player.yo*10, 2, 2);
 }
