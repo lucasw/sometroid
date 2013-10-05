@@ -106,8 +106,11 @@ class Level {
           
           rect(x_scr, y_scr, sc, sc + 1);
           
-          if (alpha(map_im.pixels[ind]) != 0) { 
-            image(gnd1_im, x_scr, y_scr, sc, sc);
+          if (alpha(map_im.pixels[ind]) != 0) {
+            pushMatrix();
+            translate(0,0,-1);
+            //image(gnd1_im, x_scr, y_scr, sc, sc);
+            popMatrix();
           }
         } // is in image
 
@@ -153,7 +156,9 @@ class Level {
   }
 
 class Player {
- 
+
+  PImage player1_im;
+
   boolean just_jumped; 
   boolean is_walking;
 
@@ -176,6 +181,8 @@ class Player {
     yo = 10;
     x_scr = width/2;
     y_scr = height/2;
+
+    player1_im = loadImage("player.png");
   }
 
   void walk(float dx) {
@@ -214,7 +221,7 @@ class Player {
     if (x_vel < -0.1) x_vel = -0.1;
     //if (y_vel < -0.1) y_vel = 0.1;
     
-    final float friction = 0.7;
+    final float friction = 0.65;
     collided_top = false;
     collided_bottom = false;
     collided_right = false;
@@ -261,9 +268,11 @@ class Player {
   } // update
 
   void draw() {
-    fill(255, 100, 100);
-    rect(x_scr, y_scr, scale, scale );
-    
+    //fill(255, 100, 100);
+    //rect(x_scr, y_scr, scale, scale );
+    image(player1_im, x_scr, y_scr, scale, scale);  
+
+    if (false) {
     fill(0, 128, 0);
     if (collided_bottom)  
       rect(x_scr, y_scr + scale*3/4, scale, scale/4);
@@ -276,6 +285,7 @@ class Player {
     if (is_walking) {
       //fill(0, 255,0);
      // rect(x_scr, y_scr + scale/2, scale, scale/2);
+    }
     }
     if (just_jumped) {
       fill(0, 128, 0);
@@ -395,7 +405,7 @@ Player player;
 Controls controls;
 
 void setup() {
-  size(800, 600);
+  size(1280, 720);
   level = new Level(); 
   player = new Player();
   controls = new Controls();
