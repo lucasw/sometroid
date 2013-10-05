@@ -77,7 +77,6 @@ class Level {
     float y_off = height/2 - (sc * (ymax - ymin))/2;
     //println(x_off + " " + y_off);
 
-
     for (int y = ymin; y < ymax; y++) {
       for (int x = xmin; x < xmax; x++) {
 
@@ -100,7 +99,6 @@ class Level {
       } // x
     } // y
 
-
   } // draw
 
 }
@@ -110,6 +108,9 @@ class Player {
   float xo;
   float yo;
 
+  float x_vel;
+  float y_vel;
+  
   float x_scr;
   float y_scr;
 
@@ -120,7 +121,21 @@ class Player {
     y_scr = height/2;
   }
 
-  void move (float dx, float dy) {
+  void walk(float dx) {
+    x_vel += dx;
+  }
+
+  void jump() {
+    // can only jump if above solid ground
+    if (level.testCollision(int(xo), int(yo + 1))) {
+      //println("jump");
+      y_vel = -0.3;
+    } else {
+      //println("no jump");
+    } 
+  }
+
+  void move(float dx, float dy) {
     // TBD if xo + dx, yo works or the other case then allow it
     if (!level.testCollision(int(xo + dx), int(yo + dy))) {
       xo += dx;
@@ -128,8 +143,46 @@ class Player {
     }
   }
 
+  void update() {
+    // gravity 
+    y_vel += 0.01;
+    if (y_vel > 0.1) y_vel = 0.1;
+    if (x_vel > 0.1) x_vel = 0.1;
+    if (x_vel < -0.1) x_vel = -0.1;
+    //if (y_vel < -0.1) y_vel = 0.1;
+    
+    // collided with floor
+    if (level.testCollision(int(xo), int(yo + 1))) {
+      if (y_vel > 0)
+        y_vel = 0;
+      // floor friction
+      x_vel *= 0.95;
+    } 
+    // collided with ceilng
+    if (level.testCollision(int(xo), int(yo - 1))) {
+      if (y_vel < 0)
+        y_vel = 0;
+      // ceiling friction
+      x_vel *= 0.95;
+    } 
+    if (level.testCollision(int(xo + 1), int(yo))) {
+      if (x_vel > 0)
+        x_vel = 0;
+    } 
+    if (level.testCollision(int(xo - 1), int(yo))) {
+      if (x_vel < 0)
+        x_vel = 0;
+    }
+    
+    move(x_vel, y_vel);
+
+  } // update
+
   void draw() {
     fill(255, 100, 100);
+    float x_off = xo - int(xo);
+    float y_off = yo - int(yo);
+    println(x_off + " " +  y_off);
     rect(x_scr, y_scr, scale, scale );
   }
 }
@@ -145,21 +198,26 @@ void setup() {
 
 void keyPressed() {
   if (key == 'a') {
-    player.move(-1,0);
+    player.walk(-0.1);
+    //player.move(-1,0);
   }
   if (key == 'd') {
-    player.move(1,0);
+    player.walk(0.1);
+    //player.move(1,0);
   }
   if (key == 'w') {
-    player.move(0,-1);
+    player.jump();
+    //player.move(0,-1);
   }
   if (key == 's') {
-    player.move(0, 1);
+    //player.move(0, 1);
   }
 }
 
 void draw() {
   background(10,30,0);
+
+  player.update();
 
   level.draw(player.xo, player.yo);
   player.draw();
