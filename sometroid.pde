@@ -152,9 +152,9 @@ class Player {
   void update() {
     
     if (controls.left && !controls.right_not_left_most_recent) 
-      walk(-0.1);
+      walk(-0.03);
     if (controls.right && controls.right_not_left_most_recent) 
-      walk(0.1);
+      walk(0.03);
   
     if (controls.just_jumped) {
       controls.just_jumped = false;
@@ -164,7 +164,8 @@ class Player {
     // gravity 
     y_vel += 0.01;
     if (y_vel > 0.1) y_vel = 0.1;
-    if (x_vel > 0.1) x_vel = 0.1;
+
+    if (x_vel >  0.1) x_vel =  0.1;
     if (x_vel < -0.1) x_vel = -0.1;
     //if (y_vel < -0.1) y_vel = 0.1;
     
@@ -173,20 +174,20 @@ class Player {
       if (y_vel > 0)
         y_vel = 0;
       // floor friction
-      x_vel *= 0.95;
+      x_vel *= 0.7;
     } 
     // collided with ceilng
-    if (level.testCollision(int(xo), int(yo - 1))) {
+    if (level.testCollision(int(xo), int(yo))) {
       if (y_vel < 0)
         y_vel = 0;
       // ceiling friction
-      x_vel *= 0.95;
+      x_vel *= 0.7;
     } 
     if (level.testCollision(int(xo + 1), int(yo))) {
       if (x_vel > 0)
         x_vel = 0;
     } 
-    if (level.testCollision(int(xo - 1), int(yo))) {
+    if (level.testCollision(int(xo), int(yo))) {
       if (x_vel < 0)
         x_vel = 0;
     }
@@ -213,6 +214,59 @@ class Controls {
   boolean just_jumped; 
 
   Controls() {
+
+  }
+  
+  void draw() {
+    if (right) {
+      fill(0, 255, 0);
+    } else {
+      fill(128);
+    }
+    rect(30, 20, 10, 10);
+    
+    if (right && right_not_left_most_recent) {
+      fill(0, 128, 0);
+      rect(30, 20, 5, 5);
+    }
+
+    if (left) {
+      fill(0, 255, 0);
+    } else {
+      fill(128);
+    }
+    rect(10, 20, 10, 10);
+
+    ///////////
+    if (up) {
+      fill(0, 255, 0);
+    } else {
+      fill(128);
+    }
+    rect(20, 10, 10, 10);
+
+    if (up_not_down_most_recent) {
+      fill(0, 128, 0);
+      rect(20, 10, 5, 5);
+    }
+
+    if (down) {
+      fill(0, 255, 0);
+    } else {
+      fill(128);
+    }
+    rect(20, 30, 10, 10);
+
+    if (jump) {
+      fill(0, 255, 0);
+    } else {
+      fill(128);
+    }
+    rect(40, 20, 10, 10);
+    if (just_jumped) {
+      fill(0, 128, 0);
+      rect(40, 20, 5, 5);
+    }
 
   }
 
@@ -248,13 +302,14 @@ class Controls {
   }
 
   void keyReleased(char key) {
-    if (key == 'a') {
+    println("released " + key);
+    if (key == 'd') {
       right = false;
       //right_not_left_most_recent = true;
       //player.walk(-0.1);
       //player.move(-1,0);
     }
-    if (key == 'd') {
+    if (key == 'a') {
       left = false;
       //right_not_left_most_recent = false;
       //player.walk(0.1);
@@ -303,7 +358,7 @@ void draw() {
 
   level.draw(player.xo, player.yo);
   player.draw();
-
+  controls.draw();
   fill(255);
   //rect(player.xo*10, player.yo*10, 2, 2);
 }
