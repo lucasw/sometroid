@@ -44,6 +44,17 @@ class Level {
         scale);
   }
 
+  boolean testCollision(int xo, int yo) {
+    if (xo < 0) return true;
+    if (yo < 0) return true;
+    if (xo >= map_im.width) return true;
+    if (yo >= map_im.height) return true;
+
+    return false;
+    //map_im.loadPixels();
+    
+  }
+  
   void draw(float xo, float yo,
       int xmin, int ymin, int xmax, int ymax, float sc) {
     //println("road draw");
@@ -101,8 +112,10 @@ class Player {
   }
 
   void move (float dx, float dy) {
-    xo += dx;
-    yo += dy;
+    if (!level.testCollision(int(xo + dx), int(yo + dy))) {
+      xo += dx;
+      yo += dy;
+    }
   }
 
   void draw() {
