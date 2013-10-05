@@ -144,6 +144,7 @@ class Level {
 
 class Player {
  
+  boolean just_jumped; 
   boolean is_walking;
 
   boolean collided_top;
@@ -173,11 +174,14 @@ class Player {
 
   void jump() {
     // can only jump if above solid ground
-    if (collidedBottom(xo, yo)) {
-      //println("jump");
-      y_vel = -0.4;
+    if (controls.jump) {
+      if (!just_jumped && collidedBottom(xo, yo + 0.1)) {
+        println("jump");
+        y_vel = -0.3;
+        just_jumped = true;
+      } 
     } else {
-      //println("no jump");
+      just_jumped = false;
     } 
   }
 
@@ -187,11 +191,9 @@ class Player {
       walk(-0.01);
     if (controls.right && controls.right_not_left_most_recent) 
       walk( 0.01);
-  
-    if (controls.just_jumped) {
-      controls.just_jumped = false;
+ 
+    //
       jump();
-    }
 
     // gravity
     if (!is_walking)
@@ -203,47 +205,44 @@ class Player {
     //if (y_vel < -0.1) y_vel = 0.1;
     
     final float friction = 0.7;
+    collided_top = false;
+    collided_bottom = false;
+    collided_right = false;
+    collided_left = false;
 
     // collided with floor
     if (collidedBottom(xo, yo + y_vel)) {
+      collided_bottom = true;
       if (y_vel > 0)
         y_vel = 0;
       // floor friction
       x_vel *= friction;
       is_walking = true;
       
-      fill(0, 255, 0);
-      rect(x_scr, y_scr + scale*3/4, scale, scale/4);
     } else {
       is_walking = false;
       
     }
     // collided with ceilng
     if (collidedTop(xo, yo + y_vel)) {
+      collided_top = true;
       if (y_vel < 0)
         y_vel = 0;
       // ceiling friction
       x_vel *= friction;
-      
-      fill(0, 255, 0);
-      rect(x_scr, y_scr, scale, scale/4);
     }
 
     // collided with right hand wall
     if (collidedRight(xo + x_vel, yo)) {
+      collided_right = true;
       if (x_vel > 0)
         x_vel = 0;
-      
-      fill(0, 255, 0);
-      rect(x_scr + scale*3/4, y_scr, scale/4, scale);
     } 
     // collided with left hand wall
-    if (collidedLeft(xo + x_vel, yo)) {  
+    if (collidedLeft(xo + x_vel, yo)) { 
+      collided_left = true;
       if (x_vel < 0)
         x_vel =  0;
-      
-      fill(0, 255, 0);
-      rect(x_scr, y_scr, scale/4, scale);
     }
     
     xo += x_vel;
@@ -254,10 +253,23 @@ class Player {
   void draw() {
     fill(255, 100, 100);
     rect(x_scr, y_scr, scale, scale );
-
+    
+    fill(0, 128, 0);
+    if (collided_bottom)  
+      rect(x_scr, y_scr + scale*3/4, scale, scale/4);
+    if (collided_top)
+      rect(x_scr, y_scr, scale, scale/4);
+    if (collided_left) 
+      rect(x_scr, y_scr, scale/4, scale);
+    if (collided_right)
+      rect(x_scr + scale*3/4, y_scr, scale/4, scale);
     if (is_walking) {
       //fill(0, 255,0);
      // rect(x_scr, y_scr + scale/2, scale, scale/2);
+    }
+    if (just_jumped) {
+      fill(0, 128, 0);
+      rect(50, 20, 5, 5);
     }
   }
 }
@@ -271,7 +283,6 @@ class Controls {
   boolean down;
   boolean up_not_down_most_recent;
   boolean jump;
-  boolean just_jumped; 
 
   Controls() {
 
@@ -323,10 +334,7 @@ class Controls {
       fill(128);
     }
     rect(40, 20, 10, 10);
-    if (just_jumped) {
-      fill(0, 128, 0);
-      rect(40, 20, 5, 5);
-    }
+    
 
   }
 
@@ -348,9 +356,6 @@ class Controls {
     }
     if (key == 'k') {
       jump = true;
-      if (just_jumped == false)
-        just_jumped = true;
-      else just_jumped = false;
     }
   }
 
@@ -371,7 +376,6 @@ class Controls {
     }
     if (key == 'k') {
       jump = false;
-      just_jumped = false;
     }
   } // keyReleased
 } // Controls
