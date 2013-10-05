@@ -50,9 +50,18 @@ class Level {
     if (xo >= map_im.width) return true;
     if (yo >= map_im.height) return true;
 
-    return false;
-    //map_im.loadPixels();
-    
+    map_im.loadPixels();
+
+    int ind = yo * map_im.width + xo;
+
+    if (
+        (red(map_im.pixels[ind]) == 0) && 
+        (green(map_im.pixels[ind]) == 0) &&
+        (blue(map_im.pixels[ind]) == 0)) {
+      return false;
+    }
+
+    return true; 
   }
   
   void draw(float xo, float yo,
@@ -112,6 +121,7 @@ class Player {
   }
 
   void move (float dx, float dy) {
+    // TBD if xo + dx, yo works or the other case then allow it
     if (!level.testCollision(int(xo + dx), int(yo + dy))) {
       xo += dx;
       yo += dy;
