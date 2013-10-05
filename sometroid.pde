@@ -27,17 +27,22 @@ class Level {
 
   PImage map_im;
   String filename = "level1.png";
+  
+  // tiles
+  PImage gnd1_im;
+  String gnd1_filename = "gnd1.png";
 
   Level() {
     map_im = loadImage(filename);
     println("level: " + filename + " " + map_im.width + " " + map_im.height);
+    gnd1_im = loadImage(gnd1_filename);
   }
 
   // xo and yo are the centers of the view in map_im
   // coordinates 
   void draw(float xo, float yo) {
-    int x_ext = int(width/scale * 0.5);
-    int y_ext = int(height/scale * 0.5);
+    int x_ext = int(width/scale * 0.5) + 1;
+    int y_ext = int(height/scale * 0.5) + 1;
     draw(xo, yo, 
         int(xo) - x_ext, int(yo) - y_ext, 
         int(xo) + x_ext, int(yo) + y_ext, 
@@ -98,8 +103,13 @@ class Level {
           noStroke();
           fill(map_im.pixels[ind]);
           //println(str(ind) + " " + hex(map_im.pixels[ind]));
+          
           rect(x_scr, y_scr, sc, sc + 1);
-        }
+          
+          if (alpha(map_im.pixels[ind]) != 0) { 
+            image(gnd1_im, x_scr, y_scr, sc, sc);
+          }
+        } // is in image
 
       } // x
     } // y
