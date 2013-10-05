@@ -110,7 +110,8 @@ class Level {
 }
 
 class Player {
-  
+ 
+  boolean is_walking;
   float xo;
   float yo;
 
@@ -135,7 +136,7 @@ class Player {
     // can only jump if above solid ground
     if (level.testCollision(int(xo), int(yo + 1))) {
       //println("jump");
-      y_vel = -0.3;
+      y_vel = -0.4;
     } else {
       //println("no jump");
     } 
@@ -143,26 +144,64 @@ class Player {
 
   void move(float dx, float dy) {
     // TBD if xo + dx, yo works or the other case then allow it
-    if (!level.testCollision(int(xo + dx), int(yo + dy))) {
+    if (!level.testCollision(int(xo + dx), int(yo)) &&
+        !level.testCollision(int(xo + dx), int(yo + 1)) 
+      ) {
       xo += dx;
+    }
+    if (!level.testCollision(int(xo),     int(yo + dy)) && 
+        !level.testCollision(int(xo + 1), int(yo + dy))) {
       yo += dy;
     }
+  }
+
+  boolean collidedBottom() {
+    if ((level.testCollision(int(xo),    int(yo + 1))) ||
+        (level.testCollision(int(xo + 1), int(yo + 1)))) {
+      return true;
+    }
+    return false;
+  }
+
+  boolean collidedTop() {
+    if ((level.testCollision(int(xo),     int(yo))) ||
+        (level.testCollision(int(xo + 1), int(yo)))) {
+          return true;
+    }
+    return false;
+  }
+
+  boolean collidedRight() {
+    if ((level.testCollision(int(xo + 1), int(yo))) ||
+        (level.testCollision(int(xo + 1), int(yo + 1)))) {
+          return true;
+    }
+    return false;
+  }
+
+  boolean collidedLeft() {
+    if ((level.testCollision(int(xo), int(yo))) ||
+        (level.testCollision(int(xo), int(yo + 1)))) {
+          return true;
+    }
+    return false;
   }
 
   void update() {
     
     if (controls.left && !controls.right_not_left_most_recent) 
-      walk(-0.03);
+      walk(-0.01);
     if (controls.right && controls.right_not_left_most_recent) 
-      walk(0.03);
+      walk( 0.01);
   
     if (controls.just_jumped) {
       controls.just_jumped = false;
       jump();
     }
 
-    // gravity 
-    y_vel += 0.01;
+    // gravity
+    if (!is_walking)
+      y_vel += 0.01;
     if (y_vel > 0.1) y_vel = 0.1;
 
     if (x_vel >  0.1) x_vel =  0.1;
@@ -170,26 +209,32 @@ class Player {
     //if (y_vel < -0.1) y_vel = 0.1;
     
     // collided with floor
-    if (level.testCollision(int(xo), int(yo + 1))) {
+    if (collidedBottom()) {
       if (y_vel > 0)
         y_vel = 0;
       // floor friction
-      x_vel *= 0.7;
-    } 
+      x_vel *= 0.8;
+      is_walking = true;
+    } else {
+      is_walking = false;
+    }
     // collided with ceilng
-    if (level.testCollision(int(xo), int(yo))) {
+    if (collidedTop()) {
       if (y_vel < 0)
         y_vel = 0;
       // ceiling friction
-      x_vel *= 0.7;
-    } 
-    if (level.testCollision(int(xo + 1), int(yo))) {
+      x_vel *= 0.8;
+    }
+
+    // collided with right hand wall
+    if (collidedRight()) {
       if (x_vel > 0)
-        x_vel = 0;
+        x_vel = -x_vel * 0.1;
     } 
-    if (level.testCollision(int(xo), int(yo))) {
+    // collided with left hand wall
+    if (collidedLeft()) {  
       if (x_vel < 0)
-        x_vel = 0;
+        x_vel = -x_vel * 0.1;
     }
     
     move(x_vel, y_vel);
@@ -280,54 +325,39 @@ class Controls {
     if (key == 'a') {
       left = true;
       right_not_left_most_recent = false;
-      //player.walk(0.1);
-      //player.move(1,0);
     }
     if (key == 'w') {
       up = true;
-      //player.jump();
-      //player.move(0,-1);
     }
     if (key == 's') {
       down = true;
-      //player.move(0, 1);
     }
     if (key == 'k') {
       jump = true;
       if (just_jumped == false)
         just_jumped = true;
       else just_jumped = false;
-      //player.jump();
     }
   }
 
   void keyReleased(char key) {
-    println("released " + key);
     if (key == 'd') {
       right = false;
       //right_not_left_most_recent = true;
-      //player.walk(-0.1);
-      //player.move(-1,0);
     }
     if (key == 'a') {
       left = false;
       //right_not_left_most_recent = false;
-      //player.walk(0.1);
-      //player.move(1,0);
     }
     if (key == 'w') {
       up = false;
-      //player.jump();
-      //player.move(0,-1);
     }
     if (key == 's') {
       down = false;
-      //player.move(0, 1);
     }
     if (key == 'k') {
       jump = false;
       just_jumped = false;
-      //player.jump();
     }
   } // keyReleased
 } // Controls
