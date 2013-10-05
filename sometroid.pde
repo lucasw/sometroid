@@ -109,9 +109,48 @@ class Level {
 
 }
 
+// TBD put in level class?
+  boolean collidedBottom(float xo, float yo) {
+    if ((level.testCollision(int(xo),    int(yo + 1))) ||
+        (level.testCollision(int(xo + 1), int(yo + 1)))) {
+      return true;
+    }
+    return false;
+  }
+
+  boolean collidedTop(float xo, float yo) {
+    if ((level.testCollision(int(xo),     int(yo))) ||
+        (level.testCollision(int(xo + 1), int(yo)))) {
+          return true;
+    }
+    return false;
+  }
+
+  boolean collidedRight(float xo, float yo) {
+    if ((level.testCollision(int(xo + 1), int(yo))) ||
+        (level.testCollision(int(xo + 1), int(yo + 1)))) {
+          return true;
+    }
+    return false;
+  }
+
+  boolean collidedLeft(float xo, float yo) {
+    if ((level.testCollision(int(xo), int(yo))) ||
+        (level.testCollision(int(xo), int(yo + 1)))) {
+          return true;
+    }
+    return false;
+  }
+
 class Player {
  
   boolean is_walking;
+
+  boolean collided_top;
+  boolean collided_bottom;
+  boolean collided_left;
+  boolean collided_right;
+
   float xo;
   float yo;
 
@@ -134,57 +173,12 @@ class Player {
 
   void jump() {
     // can only jump if above solid ground
-    if (level.testCollision(int(xo), int(yo + 1))) {
+    if (collidedBottom(xo, yo)) {
       //println("jump");
       y_vel = -0.4;
     } else {
       //println("no jump");
     } 
-  }
-
-  void move(float dx, float dy) {
-    // TBD if xo + dx, yo works or the other case then allow it
-    if (!level.testCollision(int(xo + dx), int(yo)) &&
-        !level.testCollision(int(xo + dx), int(yo + 1)) 
-      ) {
-      xo += dx;
-    }
-    if (!level.testCollision(int(xo),     int(yo + dy)) && 
-        !level.testCollision(int(xo + 1), int(yo + dy))) {
-      yo += dy;
-    }
-  }
-
-  boolean collidedBottom() {
-    if ((level.testCollision(int(xo),    int(yo + 1))) ||
-        (level.testCollision(int(xo + 1), int(yo + 1)))) {
-      return true;
-    }
-    return false;
-  }
-
-  boolean collidedTop() {
-    if ((level.testCollision(int(xo),     int(yo))) ||
-        (level.testCollision(int(xo + 1), int(yo)))) {
-          return true;
-    }
-    return false;
-  }
-
-  boolean collidedRight() {
-    if ((level.testCollision(int(xo + 1), int(yo))) ||
-        (level.testCollision(int(xo + 1), int(yo + 1)))) {
-          return true;
-    }
-    return false;
-  }
-
-  boolean collidedLeft() {
-    if ((level.testCollision(int(xo), int(yo))) ||
-        (level.testCollision(int(xo), int(yo + 1)))) {
-          return true;
-    }
-    return false;
   }
 
   void update() {
@@ -208,42 +202,63 @@ class Player {
     if (x_vel < -0.1) x_vel = -0.1;
     //if (y_vel < -0.1) y_vel = 0.1;
     
+    final float friction = 0.7;
+
     // collided with floor
-    if (collidedBottom()) {
+    if (collidedBottom(xo, yo + y_vel)) {
       if (y_vel > 0)
         y_vel = 0;
       // floor friction
-      x_vel *= 0.8;
+      x_vel *= friction;
       is_walking = true;
+      
+      fill(0, 255, 0);
+      rect(x_scr, y_scr + scale*3/4, scale, scale/4);
     } else {
       is_walking = false;
+      
     }
     // collided with ceilng
-    if (collidedTop()) {
+    if (collidedTop(xo, yo + y_vel)) {
       if (y_vel < 0)
         y_vel = 0;
       // ceiling friction
-      x_vel *= 0.8;
+      x_vel *= friction;
+      
+      fill(0, 255, 0);
+      rect(x_scr, y_scr, scale, scale/4);
     }
 
     // collided with right hand wall
-    if (collidedRight()) {
+    if (collidedRight(xo + x_vel, yo)) {
       if (x_vel > 0)
-        x_vel = -x_vel * 0.1;
+        x_vel = 0;
+      
+      fill(0, 255, 0);
+      rect(x_scr + scale*3/4, y_scr, scale/4, scale);
     } 
     // collided with left hand wall
-    if (collidedLeft()) {  
+    if (collidedLeft(xo + x_vel, yo)) {  
       if (x_vel < 0)
-        x_vel = -x_vel * 0.1;
+        x_vel =  0;
+      
+      fill(0, 255, 0);
+      rect(x_scr, y_scr, scale/4, scale);
     }
     
-    move(x_vel, y_vel);
+    xo += x_vel;
+    yo += y_vel;
 
   } // update
 
   void draw() {
     fill(255, 100, 100);
     rect(x_scr, y_scr, scale, scale );
+
+    if (is_walking) {
+      //fill(0, 255,0);
+     // rect(x_scr, y_scr + scale/2, scale, scale/2);
+    }
   }
 }
 
@@ -320,7 +335,6 @@ class Controls {
       right = true;
       right_not_left_most_recent = true;
       //player.walk(-0.1);
-      //player.move(-1,0);
     }
     if (key == 'a') {
       left = true;
