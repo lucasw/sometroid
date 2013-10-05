@@ -75,6 +75,9 @@ class Level {
     
     float x_off = width/2  - (sc * (xmax - xmin))/2;
     float y_off = height/2 - (sc * (ymax - ymin))/2;
+    
+    x_off += xo - int(xo);
+    y_off += yo - int(yo);
     //println(x_off + " " + y_off);
 
     for (int y = ymin; y < ymax; y++) {
@@ -180,9 +183,6 @@ class Player {
 
   void draw() {
     fill(255, 100, 100);
-    float x_off = xo - int(xo);
-    float y_off = yo - int(yo);
-    println(x_off + " " +  y_off);
     rect(x_scr, y_scr, scale, scale );
   }
 }
@@ -206,11 +206,14 @@ void keyPressed() {
     //player.move(1,0);
   }
   if (key == 'w') {
-    player.jump();
+    //player.jump();
     //player.move(0,-1);
   }
   if (key == 's') {
     //player.move(0, 1);
+  }
+  if (key == 'k') {
+    player.jump();
   }
 }
 
@@ -221,4 +224,7 @@ void draw() {
 
   level.draw(player.xo, player.yo);
   player.draw();
+
+  fill(255);
+  rect(player.xo*10, player.yo*10, 2, 2);
 }
